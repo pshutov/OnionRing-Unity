@@ -1,18 +1,15 @@
 # OnionRing
 
-Auto 9 slice sprite generator on Unity
+Auto 9-slicing sprite by spriteborders
 
-before ![before.png](https://raw.githubusercontent.com/kyubuns/OnionRingUnity/master/Assets/OnionRingSample/Editor/In/SampleImage.png)
+Configure source image
+![SourceImage.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/SourceImage.jpeg)
 
-after ![after.png](https://raw.githubusercontent.com/kyubuns/OnionRingUnity/master/Assets/OnionRingSample/Editor/Out/SampleImage.png)
+Invoke action
+![MenuItem.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/MenuItem.jpeg)
 
-And automatic sprite slice!
-
-<img width="300" alt="4c30a682-b636-bd88-b941-8d4a46981625" src="https://cloud.githubusercontent.com/assets/961165/12112976/3cb31144-b3e3-11e5-811b-4ac2aee3ad32.png">
-
-## Sample Code
-
-https://github.com/kyubuns/OnionRingUnity/blob/master/Assets/OnionRingSample/Editor/OnionRingSampleImporter.cs
+Get result image
+![OutputImage.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/OutputImage.jpeg)
 
 ## License
 

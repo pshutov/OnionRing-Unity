@@ -1,16 +1,78 @@
+# =============== #
+# Unity generated #
+# =============== #
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
-/[Bb]uild/
-*.csproj
-*.unityproj
-*.sln
-*.suo
-*.tmp
-*.user
-*.userprefs
-*.pidb
-*.booproj
-*.pidb.meta
-.vscode
+/[Ll]ogs/
+/[Mm]emoryCaptures/
+
 sysinfo.txt
+*.stackdump
+
+# Uncomment this line if you wish to ignore the asset store tools plugin
+# /[Aa]ssets/AssetStoreTools*
+
+# ================== #
+# TextMesh Pro files #
+# ================== #
+[Aa]ssets/TextMesh*Pro/
+
+# ========================== #
+# Unity generated meta files #
+# ========================== #
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# ===================================== #
+# Unity generated file on crash reports #
+# ===================================== #
+sysinfo.txt
+*.stackdump
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+.vs/
+/*.userprefs
+/*.csproj
+/*.pidb
+*.pidb.meta
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+.consulo/
+/*.tmp
+/*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# ============= #
+# IDE generated #
+# ============= #
+/.idea/
+/[Aa]ssets/Plugins/Editor/JetBrains/
+/[Aa]ssets/Plugins/Editor/JetBrains.meta
+
+# ====================== #
+# Gradle cache directory #
+# ====================== #
+.gradle/
+ 
+# ================== #
+# OS generated files #
+# ================== #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+[Dd]esktop.ini
