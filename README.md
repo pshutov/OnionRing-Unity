@@ -1,5 +1,10 @@
 # OnionRing
 
+### v0.0.1
+
+Download [latest release](https://github.com/ShutovPS/OnionRingUnity/raw/master/onionring_latest.unitypackage)
+
+## Information
 Auto 9-slicing sprite by spriteborders
 
 Configure source image
