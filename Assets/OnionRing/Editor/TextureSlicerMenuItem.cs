@@ -67,8 +67,11 @@ namespace OnionRing {
             AssetDatabase.ImportAsset(inTexturePath, ImportAssetOptions.ForceUpdate);
 
             string outTextureName = $"{textureName}_sliced";
+            outTexture.name = outTextureName;
 
             string outTexturePath = SaveTexture(outTexture, directoryPath, outTextureName, extension);
+            
+            GameObject.DestroyImmediate(outTexture);
 
             if (string.IsNullOrEmpty(outTexturePath)) {
                 Debug.LogErrorFormat("TextureSlicerMenuItem -> SlicedTexture: outTextureName = '{0}'", outTextureName);
@@ -144,7 +147,7 @@ namespace OnionRing {
         }
 
 
-        private const string MenuItemName = "Assets/OnionRing/9-Slice Texture";
+        private const string MenuItemName = "Assets/OnionRing -> 9-Slice Texture";
         private const int MenuItemPriority = 1000;
     }
 }
