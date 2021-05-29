@@ -1,0 +1,4 @@
+[submodule "Assets/OnionRing-Unity"]
+	path = Assets/OnionRing-Unity
+	url = https://github.com/ShutovPS/OnionRing-Unity
+	branch = upm
