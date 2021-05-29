@@ -1,0 +1,20 @@
+{
+  "name": "dev.fd.onionring",
+  "displayName": "OnionRing",
+  "version": "1.0.1",
+  "unity": "2019.4",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShutovPS/OnionRing-Unity.git"
+  },
+  "description": "Auto 9 slice sprite generator",
+  "documentationUrl": "https://github.com/ShutovPS/OnionRing-Unity",
+  "dependencies": {
+  },
+  "author": {
+    "name": "fd_crash",
+    "url" : "https://github.com/ShutovPS/"
+  },
+  "type": "library"
+}

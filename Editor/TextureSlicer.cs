@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace OnionRing
+namespace fd.OnionRing
 {
 	public class TextureSlicer
 	{
