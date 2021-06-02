@@ -1,7 +1,8 @@
 # OnionRing
-===
 
-### v1.0.1
+===
+### v1.0.2
+===
 
 ## Information
 Auto 9-slicing sprite by spriteborders
@@ -30,6 +31,14 @@ Invoke action
 
 Get result image
 ![OutputImage.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/OutputImage.jpeg)
+
+
+## Release Notes
+
+### ver.1.0.2:
+
+* Fix: Fix Assembly Definitions
+
 
 ## License
 
