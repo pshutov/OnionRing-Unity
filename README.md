@@ -23,18 +23,21 @@ Or, use [UpmGitExtension](https://github.com/mob-sakai/UpmGitExtension) to insta
 ## Instruction
 
 Configure source image
+
 <img src=".res/images/SourceImage.jpeg" width="300" />
 
 Invoke action
+
 <img src=".res/images/MenuItem.jpeg" width="300" />
 
 Get result image
+
 <img src=".res/images/OutputImage.jpeg" width="300" />
 
 
 ## Release Notes
 
-CHANGELOG (see [CHANGELOG](CHANGELOG.md))
+CHANGELOG (see [CHANGELOG](CHANGELOG.MD))
 
 
 ## License
