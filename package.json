@@ -1,7 +1,7 @@
 {
   "name": "dev.fd.onionring",
   "displayName": "OnionRing",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "unity": "2019.4",
   "license": "MIT",
   "repository": {
@@ -16,5 +16,15 @@
     "name": "fd_crash",
     "url" : "https://github.com/ShutovPS/"
   },
+  "contributors": [
+    {
+      "name": "kyubuns",
+      "url" : "https://github.com/kyubuns/"
+    },
+    {
+      "name": "fd_crash",
+      "url" : "https://github.com/ShutovPS/"
+    }
+  ],
   "type": "library"
 }
