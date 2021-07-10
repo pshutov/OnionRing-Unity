@@ -13,6 +13,11 @@ namespace fd.OnionRing
         [MenuItem(MenuItemName, priority = MenuItemPriority)]
         private static void SliceTextureMenuItem()
         {
+            if (Selection.objects == null || Selection.objects.Length == 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < Selection.objects.Length; i++)
             {
                 if (Selection.objects[i] is Texture2D texture2D)
@@ -25,6 +30,11 @@ namespace fd.OnionRing
         [MenuItem(MenuItemName, true, priority = MenuItemPriority)]
         private static bool SliceTextureMenuItemValidation()
         {
+            if (Selection.objects == null || Selection.objects.Length == 0)
+            {
+                return false;
+            }
+
             for (int i = 0; i < Selection.objects.Length; i++)
             {
                 if (!(Selection.objects[i] is Texture2D))

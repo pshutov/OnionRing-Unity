@@ -1,11 +1,9 @@
 # OnionRing
 
-===
-### v1.0.2
-===
 
 ## Information
 Auto 9-slicing sprite by spriteborders
+
 
 ## Instalation
 
@@ -17,29 +15,33 @@ Find the manifest.json file in the Packages folder of your project and add a lin
 
 To update the package, change suffix `#{version}` to the target version.
 
-* `"dev.fd.onionring": "https://github.com/ShutovPS/OnionRing-Unity.git#1.0.1",`
+* `"dev.fd.onionring": "https://github.com/ShutovPS/OnionRing-Unity.git#1.0.3",`
 
 Or, use [UpmGitExtension](https://github.com/mob-sakai/UpmGitExtension) to install and update the package.
+
 
 ## Instruction
 
 Configure source image
-![SourceImage.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/SourceImage.jpeg)
+<img src=".res/images/SourceImage.jpeg" width="300" />
 
 Invoke action
-![MenuItem.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/MenuItem.jpeg)
+<img src=".res/images/MenuItem.jpeg" width="300" />
 
 Get result image
-![OutputImage.jpeg](https://raw.githubusercontent.com/ShutovPS/OnionRingUnity/master/.github/OutputImage.jpeg)
+<img src=".res/images/OutputImage.jpeg" width="300" />
 
 
 ## Release Notes
 
-### ver.1.0.2:
-
-* Fix: Fix Assembly Definitions
+CHANGELOG (see [CHANGELOG](CHANGELOG.md))
 
 
 ## License
 
 MIT License (see [LICENSE](LICENSE))
+
+
+## See Also
+
+* Original GitHub Page https://github.com/kyubuns/Auto9Slicer
