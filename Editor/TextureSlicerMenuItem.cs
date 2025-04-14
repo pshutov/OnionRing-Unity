@@ -53,7 +53,7 @@ namespace fd.OnionRing
             SliceTextures(textures, isOverride);
         }
 
-        private static void TrimTextures(Texture2D[] textures, bool isOverride)
+        private static void SliceTextures(Texture2D[] textures, bool isOverride)
         {
             for (int i = 0; i < textures.Length; i++)
             {
