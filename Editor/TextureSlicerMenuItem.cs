@@ -10,25 +10,25 @@ namespace fd.OnionRing
     public class TextureSlicerMenuItem
     {
         [MenuItem(itemName: MENU_ITEM, isValidateFunction: false, priority: ORDER_PRIORITY)]
-        static void SliceTextureMenuItem()
+        private static void SliceTextureMenuItem()
         {
             SliceTextures(Selection.objects, false);
         }
 
         [MenuItem(itemName: MENU_ITEM, isValidateFunction: true, priority: ORDER_PRIORITY)]
-        static bool SliceTextureMenuItemValidation()
+        private static bool SliceTextureMenuItemValidation()
         {
             return IsValid(Selection.objects);
         }
         
         [MenuItem(itemName: MENU_ITEM_OVERRIDE, isValidateFunction: false, priority: ORDER_PRIORITY_OVERRIDE)]
-        static void SliceTextureAndOverrideMenuItem()
+        private static void SliceTextureAndOverrideMenuItem()
         {
             SliceTextures(Selection.objects, true);
         }
 
         [MenuItem(itemName: MENU_ITEM_OVERRIDE, isValidateFunction: true, priority: ORDER_PRIORITY_OVERRIDE)]
-        static bool SliceTextureAndOverrideMenuItemValidation()
+        private static bool SliceTextureAndOverrideMenuItemValidation()
         {
             return IsValid(Selection.objects);
         }
@@ -43,14 +43,23 @@ namespace fd.OnionRing
             return objects.All(o => o is Texture2D);
         }
 
-        static void SliceTextures(Object[] objects, bool isOverride)
+        private static void SliceTextures(Object[] objects, bool isOverride)
         {
             var textures = objects
                 .Where(o=> o is Texture2D)
                 .Cast<Texture2D>()
                 .ToArray();
             
-            SliceTexture(textures, isOverride);
+            SliceTextures(textures, isOverride);
+        }
+
+        private static void TrimTextures(Texture2D[] textures, bool isOverride)
+        {
+            for (int i = 0; i < textures.Length; i++)
+            {
+                var texture = textures[i];
+                SliceTexture(texture, isOverride);
+            }
         }
 
         private static void SliceTexture(Texture2D texture, bool isOverride)
