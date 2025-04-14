@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.6]
+### Changes
+- Copy TextureImporter settings into output texture
+- Add override option for slicing
+
 ## [1.0.5]
 ### Fixes
 - Support slicing textures when spritesheet == 1

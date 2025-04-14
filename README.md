@@ -15,7 +15,7 @@ Find the manifest.json file in the Packages folder of your project and add a lin
 
 To update the package, change suffix `#{version}` to the target version.
 
-* `"dev.fd.onionring": "https://github.com/ShutovPS/OnionRing-Unity.git#1.0.5",`
+* `"dev.fd.onionring": "https://github.com/ShutovPS/OnionRing-Unity.git#1.0.6",`
 
 Or, use [UpmGitExtension](https://github.com/mob-sakai/UpmGitExtension) to install and update the package.
 
