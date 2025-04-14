@@ -1,52 +1,59 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace fd.OnionRing
 {
     public class TextureSlicerMenuItem
     {
-        private const string MenuItemName = "Assets/OnionRing -> 9-Slice Texture";
-        private const int MenuItemPriority = 1000;
-
-
-        [MenuItem(MenuItemName, priority = MenuItemPriority)]
-        private static void SliceTextureMenuItem()
+        [MenuItem(itemName: MENU_ITEM, isValidateFunction: false, priority: ORDER_PRIORITY)]
+        static void SliceTextureMenuItem()
         {
-            if (Selection.objects == null || Selection.objects.Length == 0)
-            {
-                return;
-            }
-
-            for (int i = 0; i < Selection.objects.Length; i++)
-            {
-                if (Selection.objects[i] is Texture2D texture2D)
-                {
-                    SlicedTexture(texture2D);
-                }
-            }
+            SliceTextures(Selection.objects, false);
         }
 
-        [MenuItem(MenuItemName, true, priority = MenuItemPriority)]
-        private static bool SliceTextureMenuItemValidation()
+        [MenuItem(itemName: MENU_ITEM, isValidateFunction: true, priority: ORDER_PRIORITY)]
+        static bool SliceTextureMenuItemValidation()
         {
-            if (Selection.objects == null || Selection.objects.Length == 0)
+            return IsValid(Selection.objects);
+        }
+        
+        [MenuItem(itemName: MENU_ITEM_OVERRIDE, isValidateFunction: false, priority: ORDER_PRIORITY_OVERRIDE)]
+        static void SliceTextureAndOverrideMenuItem()
+        {
+            SliceTextures(Selection.objects, true);
+        }
+
+        [MenuItem(itemName: MENU_ITEM_OVERRIDE, isValidateFunction: true, priority: ORDER_PRIORITY_OVERRIDE)]
+        static bool SliceTextureAndOverrideMenuItemValidation()
+        {
+            return IsValid(Selection.objects);
+        }
+
+        private static bool IsValid(Object[] objects)
+        {
+            if (objects == null || objects.Length == 0)
             {
                 return false;
             }
 
-            for (int i = 0; i < Selection.objects.Length; i++)
-            {
-                if (!(Selection.objects[i] is Texture2D))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return objects.All(o => o is Texture2D);
         }
 
-        private static void SlicedTexture(Texture2D texture)
+        static void SliceTextures(Object[] objects, bool isOverride)
+        {
+            var textures = objects
+                .Where(o=> o is Texture2D)
+                .Cast<Texture2D>()
+                .ToArray();
+            
+            SliceTexture(textures, isOverride);
+        }
+
+        private static void SliceTexture(Texture2D texture, bool isOverride)
         {
             TextureImporter sourceTextureImporter = null;
             string inTexturePath = null;
@@ -92,10 +99,19 @@ namespace fd.OnionRing
             sourceTextureImporter.isReadable = readable;
             AssetDatabase.ImportAsset(inTexturePath, ImportAssetOptions.ForceUpdate);
 
-            string outTextureName = $"{textureName}_sliced";
+            string outTextureName = textureName;
+
+            if (isOverride)
+            {
+                outTextureName += "_sliced";
+            }
+
             outTexture.name = outTextureName;
 
-            string outTexturePath = SaveTexture(outTexture, directoryPath, outTextureName, extension);
+            string outTexturePath = SaveTexture(outTexture, directoryPath, outTextureName, extension,
+                isOverride);
+
+            CopyTextureSettings(inTexturePath, outTexturePath);
 
             GameObject.DestroyImmediate(outTexture);
 
@@ -166,7 +182,8 @@ namespace fd.OnionRing
             return true;
         }
 
-        private static string SaveTexture(Texture2D texture, string directoryPath, string fileName, string extension)
+        private static string SaveTexture(Texture2D texture, string directoryPath, string fileName, string extension,
+            bool isOverride)
         {
             if (!extension.StartsWith("."))
             {
@@ -174,7 +191,11 @@ namespace fd.OnionRing
             }
 
             string outTexturePath = Path.Combine(directoryPath, $"{fileName}{extension}");
-            outTexturePath = AssetDatabase.GenerateUniqueAssetPath(outTexturePath);
+            
+            if (!isOverride)
+            {
+                outTexturePath = AssetDatabase.GenerateUniqueAssetPath(outTexturePath);
+            }
 
             var bytes = texture.EncodeToPNG();
             File.WriteAllBytes(outTexturePath, bytes);
@@ -183,5 +204,32 @@ namespace fd.OnionRing
 
             return outTexturePath;
         }
+
+        private static void CopyTextureSettings(string sourcePath, string outPath) 
+        {
+            if (string.Equals(sourcePath, outPath))
+            {
+                return;
+            }
+            
+            try
+            {
+                var sourceImporter = AssetImporter.GetAtPath(sourcePath) as TextureImporter;
+                var outImporter = AssetImporter.GetAtPath(outPath) as TextureImporter;
+                outImporter.textureType = sourceImporter.textureType;
+                outImporter.spriteImportMode = sourceImporter.spriteImportMode;
+                outImporter.SaveAndReimport();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("TextureSlicerMenuItem -> CopyTextureSettings: " + exception.Message);
+                Debug.LogException(exception);
+            }
+        }
+
+        const string MENU_ITEM = "Assets/Tools: OnionRing->9-Slice";
+        const int ORDER_PRIORITY = int.MinValue + 100;
+        const string MENU_ITEM_OVERRIDE = "Assets/Tools: OnionRing->9-Slice & Overrider";
+        const int ORDER_PRIORITY_OVERRIDE = int.MinValue + 101;
     }
 }
