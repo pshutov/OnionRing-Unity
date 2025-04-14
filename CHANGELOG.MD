@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.5]
+### Fixes
+- Support slicing textures when spritesheet == 1
+
 ## [1.0.4]
 ### Fixes
 - Remove unused .asmdef file for runtime

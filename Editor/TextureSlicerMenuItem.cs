@@ -140,7 +140,7 @@ namespace fd.OnionRing
                 return false;
             }
 
-            if (textureImporter.spritesheet.Length != 0)
+            if (textureImporter.spritesheet.Length > 1)
             {
                 Debug.LogWarningFormat("TextureSlicerMenuItem -> ValidateTexture: spritesheet = '{0}'",
                     textureImporter.spritesheet.Length);
