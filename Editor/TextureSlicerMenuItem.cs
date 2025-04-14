@@ -110,7 +110,7 @@ namespace fd.OnionRing
 
             string outTextureName = textureName;
 
-            if (isOverride)
+            if (!isOverride)
             {
                 outTextureName += "_sliced";
             }
