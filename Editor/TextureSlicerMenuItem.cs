@@ -30,7 +30,7 @@ namespace fd.OnionRing
         [MenuItem(itemName: MENU_ITEM_OVERRIDE, isValidateFunction: true, priority: ORDER_PRIORITY_OVERRIDE)]
         private static bool SliceTextureAndOverrideMenuItemValidation()
         {
-            return IsValid(Selection.objects);
+            return IsValidForOverride(Selection.objects);
         }
 
         private static bool IsValid(Object[] objects)
@@ -40,7 +40,43 @@ namespace fd.OnionRing
                 return false;
             }
 
-            return objects.All(o => o is Texture2D);
+            bool areTextures = objects.All(o => o is Texture2D);
+            return areTextures;
+        }
+
+        private static bool IsValidForOverride(Object[] objects)
+        {
+            if (!IsValid(objects))
+            {
+                return false;
+            }
+            
+            var textures = objects
+                .Where(o => o is Texture2D)
+                .Cast<Texture2D>()
+                .ToArray();
+
+            for (int i = 0; i < textures.Length; i++)
+            {
+                var texture = textures[i];
+                if (!ValidateTexturePath(texture, out string texturePath))
+                {
+                    return false;
+                }
+                
+                if (!ValidateTextureImporter(texturePath, out TextureImporter textureImporter))
+                {
+                    return false;
+                }
+
+                if (textureImporter.spriteImportMode == SpriteImportMode.Multiple 
+                    && textureImporter.spritesheet.Length != 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static void SliceTextures(Object[] objects, bool isOverride)
@@ -66,82 +102,77 @@ namespace fd.OnionRing
         {
             TextureImporter sourceTextureImporter = null;
             string inTexturePath = null;
+            
             bool valid = ValidateTexture(texture, out sourceTextureImporter, out inTexturePath);
-
             if (!valid)
             {
                 Debug.LogWarningFormat("TextureSlicerMenuItem -> SlicedTexture: valid = '{0}'", valid);
                 return;
             }
 
-            string directoryPath = Path.GetDirectoryName(inTexturePath);
+            SliceTextureByBorders(texture, isOverride,
+                inTexturePath, sourceTextureImporter);
+        }
 
-            string extension = Path.GetExtension(inTexturePath);
-            string textureName = texture.name;
-
-            bool readable = sourceTextureImporter.isReadable;
-            sourceTextureImporter.isReadable = true;
-            AssetDatabase.ImportAsset(inTexturePath, ImportAssetOptions.ForceUpdate);
-
-            var spriteBorder = sourceTextureImporter.spriteBorder;
-
-            int width = texture.width;
-            int height = texture.height;
-
-            int xStart = (int)spriteBorder.x;
-            int yStart = (int)spriteBorder.y;
-
-            int xEnd = (int)spriteBorder.z;
-            int yEnd = (int)spriteBorder.w;
-            if (xEnd != 0)
+        private static void SliceTextureByBorders(Texture2D sourceTexture, bool isOverride,
+            string sourceTexturePath, TextureImporter sourceTextureImporter)
+        {
+            string textureName = sourceTexture.name;
+            
+            MarkReadableStatus(sourceTextureImporter, true, out bool readable);
+            
+            if (sourceTextureImporter.spriteImportMode == SpriteImportMode.Single 
+                || sourceTextureImporter.spritesheet.Length == 0)
             {
-                xEnd = width - xEnd;
+                var spriteBorder = sourceTextureImporter.spriteBorder;
+                
+                var spriteRectInt = new RectInt(0, 0, sourceTexture.width, sourceTexture.height);
+                var outTexture = SliceTexture(sourceTexture, 
+                    spriteRectInt, spriteBorder);
+                
+                string outTexturePath = SaveTexture(sourceTexturePath, 
+                    outTexture, textureName, 
+                    isOverride);
+                CopyTextureSettings(sourceTexturePath, outTexturePath);
+                ApplyTextureBorders(outTexturePath, spriteBorder);
+                    
+                Object.DestroyImmediate(outTexture);
+            }
+            else
+            {
+                var spritesheet = sourceTextureImporter.spritesheet;
+                for (int i = 0; i < spritesheet.Length; i++)
+                {
+                    var sprite = spritesheet[i];
+                    string spriteName = sprite.name;
+                    var spriteBorder = sprite.border;
+
+                    var spriteRect = sprite.rect;
+                    var spriteRectInt = new RectInt(
+                        (int)spriteRect.x, (int)spriteRect.y,
+                        (int)spriteRect.width, (int)spriteRect.height);
+                    var outTexture = SliceTexture(sourceTexture,
+                        spriteRectInt, spriteBorder);
+                    
+                    string outTexturePath = SaveTexture(sourceTexturePath,
+                        outTexture, spriteName,
+                        isOverride);
+                    CopyTextureSettings(sourceTexturePath, outTexturePath);
+                    ApplyTextureBorders(outTexturePath, spriteBorder);
+
+                    Object.DestroyImmediate(outTexture);
+                }
             }
 
-            if (yEnd != 0)
-            {
-                yEnd = height - yEnd;
-            }
+            MarkReadableStatus(sourceTextureImporter, readable, out _);
 
-            var outTexture = TextureSlicer.Slice(texture, xStart, xEnd, yStart, yEnd);
+            Debug.LogFormat("TextureSlicerMenuItem->SliceTexture: sourceTexturePath='{0}'", sourceTexturePath);
+        }
 
-            sourceTextureImporter.isReadable = readable;
-            AssetDatabase.ImportAsset(inTexturePath, ImportAssetOptions.ForceUpdate);
-
-            string outTextureName = textureName;
-
-            if (!isOverride)
-            {
-                outTextureName += "_sliced";
-            }
-
-            outTexture.name = outTextureName;
-
-            string outTexturePath = SaveTexture(outTexture, directoryPath, outTextureName, extension,
-                isOverride);
-
-            CopyTextureSettings(inTexturePath, outTexturePath);
-
-            GameObject.DestroyImmediate(outTexture);
-
-            if (string.IsNullOrEmpty(outTexturePath))
-            {
-                Debug.LogErrorFormat("TextureSlicerMenuItem -> SlicedTexture: outTextureName = '{0}'", outTextureName);
-                return;
-            }
-
-            var outTextureImporter = AssetImporter.GetAtPath(outTexturePath) as TextureImporter;
-            if (outTextureImporter == null)
-            {
-                Debug.LogErrorFormat("TextureSlicerMenuItem -> SlicedTexture: outTextureImporter = '{0}'",
-                    outTextureImporter);
-                return;
-            }
-
-            outTextureImporter.spriteBorder = spriteBorder;
-            AssetDatabase.ImportAsset(outTexturePath, ImportAssetOptions.ForceUpdate);
-
-            Debug.LogFormat("TextureSlicerMenuItem -> SliceTexture -> tempTexturePath = '{0}'", outTexturePath);
+        private static Texture2D SliceTexture(Texture2D sourceTexture, RectInt rect, Vector4 bounds)
+        {
+            var outTexture = TextureSlicer.Slice(sourceTexture, rect, bounds);
+            return outTexture;
         }
 
         private static bool ValidateTexture(Texture2D texture, out TextureImporter textureImporter,
@@ -149,49 +180,110 @@ namespace fd.OnionRing
         {
             textureImporter = null;
 
-            texturePath = AssetDatabase.GetAssetPath(texture);
-            if (string.IsNullOrEmpty(texturePath))
+            if (!ValidateTexturePath(texture, out texturePath))
             {
-                Debug.LogWarningFormat("TextureSlicerMenuItem -> ValidateTexture: texturePath = '{0}'",
-                    texturePath);
                 return false;
             }
-
-            textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
-            if (textureImporter == null)
+            
+            if (!ValidateTextureImporter(texturePath, out textureImporter))
             {
-                Debug.LogWarningFormat("TextureSlicerMenuItem -> ValidateTexture: sourceTextureImporter = '{0}'",
-                    textureImporter);
                 return false;
             }
-
-            if (textureImporter.spritesheet.Length > 1)
+            
+            if (!ValidateBorders(textureImporter))
             {
-                Debug.LogWarningFormat("TextureSlicerMenuItem -> ValidateTexture: spritesheet = '{0}'",
-                    textureImporter.spritesheet.Length);
-                return false;
-            }
-
-            if (textureImporter.spriteBorder.normalized == Vector4.zero)
-            {
-                Debug.LogWarningFormat("TextureSlicerMenuItem -> ValidateTexture: spriteBorder = '{0}'",
-                    textureImporter.spriteBorder);
-                return false;
-            }
-
-            string directoryPath = Path.GetDirectoryName(texturePath);
-
-            if (string.IsNullOrEmpty(directoryPath))
-            {
-                Debug.LogWarningFormat("TextureSlicerMenuItem -> ValidateTexture: directoryPath = '{0}'",
-                    directoryPath);
                 return false;
             }
 
             return true;
         }
 
-        private static string SaveTexture(Texture2D texture, string directoryPath, string fileName, string extension,
+        private static bool ValidateTexturePath(Texture2D texture, out string texturePath)
+        {
+            texturePath = AssetDatabase.GetAssetPath(texture);
+            
+            if (string.IsNullOrEmpty(texturePath))
+            {
+                Debug.LogWarningFormat("TextureSlicerMenuItem->ValidateTexturePath: path='{0}'",
+                    texturePath);
+                return false;
+            }
+
+            return true;
+        }
+        
+        private static bool ValidateTextureImporter(string texturePath, out TextureImporter textureImporter)
+        {
+            textureImporter = AssetImporter.GetAtPath(texturePath) as TextureImporter;
+
+            if (textureImporter == null)
+            {
+                Debug.LogWarningFormat("TextureSlicerMenuItem->ValidateTextureImporter: importer='{0}'",
+                    textureImporter);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool ValidateBorders(TextureImporter textureImporter)
+        {
+            if (textureImporter.spriteImportMode == SpriteImportMode.Single 
+                || textureImporter.spritesheet.Length == 0)
+            {
+                if (!ValidateBorders(textureImporter.spriteBorder))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                var spritesheet = textureImporter.spritesheet;
+                for (int i = 0; i < spritesheet.Length; i++)
+                {
+                    var sheet = spritesheet[i];
+                    if (!ValidateBorders(sheet.border))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static bool ValidateBorders(Vector4 rect)
+        {
+            if (rect.normalized == Vector4.zero)
+            {
+                Debug.LogWarningFormat("TextureSlicerMenuItem->ValidateBorders: border='{0}'",
+                    rect);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static string SaveTexture(string sourceTexturePath, 
+            Texture2D outTexture, string outTextureName,
+            bool isOverride)
+        {
+            if (!isOverride)
+            {
+                outTextureName += "_sliced";
+            }
+            
+            string directoryPath = Path.GetDirectoryName(sourceTexturePath);
+            string extension = Path.GetExtension(sourceTexturePath);
+
+            string outTexturePath = SaveTexture(outTexture, directoryPath, outTextureName, extension,
+                isOverride);
+
+            return outTexturePath;
+        }
+
+        private static string SaveTexture(Texture2D texture, 
+            string directoryPath, string fileName, string extension,
             bool isOverride)
         {
             if (!extension.StartsWith("."))
@@ -214,6 +306,14 @@ namespace fd.OnionRing
             return outTexturePath;
         }
 
+        private static void MarkReadableStatus(TextureImporter textureImporter,
+            bool newStatus, out bool oldStatus)
+        {
+            oldStatus = textureImporter.isReadable;
+            textureImporter.isReadable = newStatus;
+            AssetDatabase.ImportAsset(textureImporter.assetPath, ImportAssetOptions.ForceUpdate);
+        }
+
         private static void CopyTextureSettings(string sourcePath, string outPath) 
         {
             if (string.Equals(sourcePath, outPath))
@@ -231,7 +331,24 @@ namespace fd.OnionRing
             }
             catch (Exception exception)
             {
-                Debug.LogError("TextureSlicerMenuItem -> CopyTextureSettings: " + exception.Message);
+                Debug.LogErrorFormat("TextureSlicerMenuItem->CopyTextureSettings: [{0}]",
+                    exception.Message);
+                Debug.LogException(exception);
+            }
+        }
+        
+        private static void ApplyTextureBorders(string outTexturePath, Vector4 borders)
+        {
+            try
+            {
+                var textureImporter = AssetImporter.GetAtPath(outTexturePath) as TextureImporter;
+                textureImporter.spriteBorder = borders;
+                textureImporter.SaveAndReimport();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogErrorFormat("TextureSlicerMenuItem->ApplyTextureBorders: [{0}]",
+                    exception.Message);
                 Debug.LogException(exception);
             }
         }

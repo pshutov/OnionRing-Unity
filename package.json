@@ -1,8 +1,8 @@
 {
   "name": "dev.fd.onionring",
   "displayName": "OnionRing",
-  "version": "1.0.6",
-  "unity": "2019.4",
+  "version": "1.0.7",
+  "unity": "2022.3",
   "license": "MIT",
   "repository": {
     "type": "git",
