@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.7]
+### Changes
+- Support 'multiple' textures format (split by sprites)
+
 ## [1.0.6]
 ### Changes
 - Copy TextureImporter settings into output texture

@@ -1,58 +1,76 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace fd.OnionRing
 {
 	public class TextureSlicer
 	{
-		public static Texture2D Slice(Texture2D texture, int xStart, int xEnd, int yStart, int yEnd)
+		public static Texture2D Slice(Texture2D texture, 
+			RectInt bounds, Vector4 border)
 		{
 			var pixels = texture.GetPixels();
 			int width = texture.width;
 			int height = texture.height;
 
-			return Slice(pixels, width, height, xStart, xEnd, yStart, yEnd);
+			return GenerateSlicedTexture(pixels, width, height, bounds, border);
 		}
 
-		private static Texture2D Slice(Color[] originalPixels, int width, int height, int xStart, int xEnd,
-			int yStart,
-			int yEnd)
+		private static Texture2D GenerateSlicedTexture(Color[] srcPixels, int width, int height,
+			RectInt bounds, Vector4 border)
 		{
-			if (xEnd - xStart < 2)
+			int left = (int)border.x;
+			int bottom = (int)border.y;
+			int right = (int)border.z;
+			int top = (int)border.w;
+
+			if (right == 0)
 			{
-				xStart = 0;
-				xEnd = 0;
+				right = bounds.width - left;
+			}
+			if (top == 0)
+			{
+				top = bounds.height - bottom;
 			}
 
-			if (yEnd - yStart < 2)
+			int outputWidth = left + right;
+			int outputHeight = top + bottom;
+			
+			var dstPixels = new Color[outputWidth * outputHeight];
+			var corners = new (int srcX, int srcY, int srcWidth, int srcHeight, int dstX, int dstY)[]
 			{
-				yStart = 0;
-				yEnd = 0;
-			}
+				// Bottom left
+				(srcX: bounds.x, srcY: bounds.y, 
+					srcWidth: left, srcHeight: bottom, 
+					dstX: 0, dstY: 0),
+				// Bottom right
+				(srcX: bounds.x + bounds.width - right, srcY: bounds.y, 
+					srcWidth: right, srcHeight: bottom, 
+					dstX: left, dstY: 0),
+				// Top Left
+				(srcX: bounds.x, srcY: bounds.y + bounds.height - top, 
+					srcWidth: left, srcHeight: top, 
+					dstX: 0, dstY: bottom),
+				// Top right
+				(srcX: bounds.x + bounds.width - right, srcY: bounds.y + bounds.height - top,
+					srcWidth: right, srcHeight: top, 
+					dstX: left, dstY: bottom),
+			};
 
-			var output = GenerateSlicedTexture(originalPixels, width, height, xStart, xEnd, yStart, yEnd);
-
-			return output;
-		}
-
-		private static Texture2D GenerateSlicedTexture(Color[] originalPixels, int width, int height, int xStart,
-			int xEnd,
-			int yStart, int yEnd)
-		{
-			int outputWidth = width - (xEnd - xStart);
-			int outputHeight = height - (yEnd - yStart);
-			var outputPixels = new Color[outputWidth * outputHeight];
-			for (int x = 0, originalX = 0; x < outputWidth; ++x, ++originalX)
+			for (int i = 0; i < corners.Length; i++)
 			{
-				if (originalX == xStart) originalX += (xEnd - xStart);
-				for (int y = 0, originalY = 0; y < outputHeight; ++y, ++originalY)
+				(int srcX, int srcY, int scrWidth, int srcHeight, int dstX, int dstY) = corners[i];
+				for (int row = 0; row < srcHeight; row++)
 				{
-					if (originalY == yStart) originalY += (yEnd - yStart);
-					outputPixels[y * outputWidth + x] = originalPixels[originalY * width + originalX];
+					int srcStart = (srcY + row) * width + srcX;
+					int dstStart = (dstY + row) * outputWidth + dstX;
+					Array.Copy(srcPixels, srcStart, 
+						dstPixels, dstStart, 
+						scrWidth);
 				}
 			}
 
 			var output = new Texture2D(outputWidth, outputHeight);
-			output.SetPixels(outputPixels);
+			output.SetPixels(dstPixels);
 			return output;
 		}
 	}
